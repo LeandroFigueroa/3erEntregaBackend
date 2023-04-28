@@ -14,32 +14,24 @@ export default class ProductManager {
     return maxId;
   }
 
-  async getAllProducts() {
+  async getAllProducts(limit){
     try {
-      if (fs.existsSync(this.path)) {
-        const products = await fs.promises.readFile(this.path, "utf-8");
-        const productsJSON = JSON.parse(products);
-        return productsJSON;
-      } else {
-        return [];
-      }
+        if(fs.existsSync(this.path)){
+            const products = await fs.promises.readFile(this.path, 'utf8');
+            const productsJSON = JSON.parse(products);
+            if (limit) {
+                return productsJSON.slice(0, limit);
+            } else {
+                return productsJSON;
+            }
+        } else {
+            return []
+        }            
     } catch (error) {
-      console.log(error);
+        console.log(error);
     }
-  }
+}
 
-  async getProducts() {
-    try {
-      const products = await this.getAllProducts();
-      const product = products.find((prod) => prod.id === id);
-      if (product) {
-        return product;
-      }
-      return false;
-    } catch (error) {
-      console.log(error);
-    }
-  }
   async addProduct(obj) {
     try {
       const product = {
@@ -90,4 +82,18 @@ export default class ProductManager {
       console.log(error);
     }
   }
+
+    async deleteProductById(id){
+        try {
+            const productsFile = await this.getAllProducts();
+            if(productsFile.length > 0){
+                const newArray = productsFile.filter(prod => prod.id !== id);
+                await fs.promises.writeFile(this.path, JSON.stringify(newArray));
+            } else {
+                throw new Error(`Product id: ${id} not found`);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
 }
