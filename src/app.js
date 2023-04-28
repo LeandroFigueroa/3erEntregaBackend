@@ -40,8 +40,9 @@ app.get("/products/:id", async (req, res) => {
 
 app.post("/products", async (req, res) => {
   try {
-    
-
+    const product = req.body;
+    const newProduct = await productManager.addProduct(product);
+    res.json(newProduct);
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
