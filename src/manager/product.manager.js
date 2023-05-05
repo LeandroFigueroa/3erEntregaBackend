@@ -1,4 +1,6 @@
 import fs from "fs";
+import {__dirname} from "../path.js"; 
+
 
 export default class ProductManager {
   constructor(path) {
@@ -9,7 +11,7 @@ export default class ProductManager {
     let maxId = 0;
     const products = await this.getAllProducts();
     products.map((prod) => {
-      if (prod.id > maxId) maxId = prod.id;
+      if (prod.pid > maxId) maxId = prod.pid;
     });
     return maxId;
   }
@@ -35,7 +37,7 @@ export default class ProductManager {
   async addProduct(obj) {
     try {
       const product = {
-        id: (await this.#getMaxId()) + 1,
+        pid: (await this.#getMaxId()) + 1,
         ...obj,
       };
       const productsFile = await this.getAllProducts();
@@ -46,10 +48,10 @@ export default class ProductManager {
       console.log(error);
     }
   }
-  async getProductById(id) {
+  async getProductById(pid) {
     try {
       const products = await this.getAllProducts();
-      const product = products.find((prod) => prod.id === id);
+      const product = products.find(prod => prod.pid === pid);
       if (product) {
         return product;
       }
@@ -58,15 +60,15 @@ export default class ProductManager {
       console.log(error);
     }
   }
-  async updateProduct(obj, id) {
+  async updateProduct(obj, pid) {
     try {
       const productsFile = await this.getAllProducts();
-      const index = productsFile.findIndex((prod) => prod.id === id);
+      const index = productsFile.findIndex(prod => prod.pid === pid);
       console.log("index:::", index);
       if (index === -1) {
-        throw new Error(`Id ${id} not found`);
+        throw new Error(`Id ${pid} not found`);
       } else {
-        productsFile[index] = { ...obj, id };
+        productsFile[index] = { ...obj, pid };
       }
       await fs.promises.writeFile(this.path, JSON.stringify(productsFile));
     } catch (error) {
@@ -83,14 +85,14 @@ export default class ProductManager {
     }
   }
 
-    async deleteProductById(id){
+    async deleteProductById(pid){
         try {
             const productsFile = await this.getAllProducts();
             if(productsFile.length > 0){
-                const newArray = productsFile.filter(prod => prod.id !== id);
+                const newArray = productsFile.filter(prod => prod.pid !== pid);
                 await fs.promises.writeFile(this.path, JSON.stringify(newArray));
             } else {
-                throw new Error(`Product id: ${id} not found`);
+                throw new Error(`Product id: ${pid} not found`);
             }
         } catch (error) {
             console.log(error);
